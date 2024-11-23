@@ -2,8 +2,11 @@ using BloodBank.Core.Entities;
 
 public class Address : BaseEntity
 {
-    public Address(string postalCode, int donorId) : base()
+    public Address(string street, string city, string state, string postalCode, int donorId) : base()
     {
+        Street = street;
+        City = city;
+        State = state;
         PostalCode = postalCode;
         DonorId = donorId;
     }

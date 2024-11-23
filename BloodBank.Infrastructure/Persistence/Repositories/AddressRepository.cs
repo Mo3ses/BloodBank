@@ -20,6 +20,7 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             var results = await _context.Addresses
                 .Where(a => !a.IsDeleted)
+                .Include(a => a.Donor)
                 .ToListAsync();
             return results;
         }
@@ -28,6 +29,7 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             var result = await _context.Addresses
                 .Where(a => !a.IsDeleted)
+                .Include(a => a.Donor)
                 .SingleOrDefaultAsync(a => a.Id == id);
             return result;
         }

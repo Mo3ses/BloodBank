@@ -22,5 +22,10 @@ namespace BloodBank.Core.Entities
         public string RhFactor { get; private set; }
         public List<Donation> Donations { get; private set; }
         public Address? Address { get; private set; }
+        public void Update(string email, double weight)
+        {
+            Email = email;
+            Weight = weight;
+        }
     }
 }

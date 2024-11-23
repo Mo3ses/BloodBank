@@ -15,10 +15,6 @@ namespace BloodBank.Infrastructure.Persistence
             builder.Entity<Address>(e =>
             {
                 e.HasKey(address => address.Id);
-                e.HasOne(address => address.Donor)
-                    .WithOne(donor => donor.Address)
-                    .HasForeignKey<Address>(donor => donor.DonorId)
-                    .OnDelete(DeleteBehavior.Restrict);
             });
 
             builder.Entity<BloodStock>(e =>
@@ -37,6 +33,10 @@ namespace BloodBank.Infrastructure.Persistence
             builder.Entity<Donor>(e =>
             {
                 e.HasKey(donor => donor.Id);
+                e.HasOne(d => d.Address)
+                    .WithOne()
+                    .HasForeignKey<Address>(address => address.DonorId)
+                    .OnDelete(DeleteBehavior.Restrict); ;
             });
         }
     }

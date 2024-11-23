@@ -5,9 +5,9 @@ namespace BloodBank.Application.Models
         public AddressInputModel(string street, string city, string state, string postalCode, int donorId)
         {
             Street = street;
-            City = City;
+            City = city;
             State = state;
-            PostalCode = PostalCode;
+            PostalCode = postalCode;
             DonorId = donorId;
         }
         public string Street { get; private set; }

@@ -1,5 +1,3 @@
-using BloodBank.Core.Entities;
-
 namespace BloodBank.Application.Models
 {
     public class AddressViewModel

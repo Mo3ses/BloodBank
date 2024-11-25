@@ -18,6 +18,6 @@ namespace BloodBank.Application.Models
         public string State { get; set; }
         public string PostalCode { get; private set; }
         public static AddressViewModel FromEntity(Address entity)
-        => new AddressViewModel(addressId: entity.Id, donorId: entity.Id, street: entity.Street, city: entity.City, state: entity.State, postalCode: entity.PostalCode);
+        => new AddressViewModel(addressId: entity.Id, donorId: entity.DonorId, street: entity.Street, city: entity.City, state: entity.State, postalCode: entity.PostalCode);
     }
 }

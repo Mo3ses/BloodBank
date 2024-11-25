@@ -14,41 +14,58 @@ namespace BloodBank.API.Controllers
             _repository = repository;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ResultViewModel<List<AddressViewModel>>> GetAll()
         {
             var addresses = await _repository.GetAll();
-            var models = addresses.Select((AddressViewModel.FromEntity)).ToList();
-            return Ok(models);
+            var models = addresses.Select(AddressViewModel.FromEntity).ToList();
+            return ResultViewModel<List<AddressViewModel>>.Success(models);
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ResultViewModel<AddressViewModel>> GetById(int id)
         {
             var address = await _repository.GetById(id: id);
+            if (address == null)
+            {
+                return ResultViewModel<AddressViewModel>.Error("Address not found.");
+            }
             var model = AddressViewModel.FromEntity(entity: address);
-            return Ok(model);
+            return ResultViewModel<AddressViewModel>.Success(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(AddressInputModel model)
+        public async Task<ResultViewModel<int>> Create(AddressInputModel model)
         {
+            if (model.DonorId.Equals(0))
+            {
+                return ResultViewModel<int>.Error("Donor Id Missing");
+            }
             var address = model.ToEntity();
-            await _repository.Create(address: address);
-            return Ok();
+            var result = await _repository.Create(address: address);
+            return ResultViewModel<int>.Success(data: result);
         }
         [HttpPut]
-        public async Task<IActionResult> Update(AddressInputModel model)
-        {
-            var address = model.ToEntity();
-            await _repository.Update(address: address);
-            return NoContent();
-        }
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ResultViewModel> Update(int id, AddressInputModel model)
         {
             var address = await _repository.GetById(id: id);
+            if (address == null)
+            {
+                return ResultViewModel.Error("Address not found.");
+            }
+            address.Update(street: model.Street, city: model.City, state: model.State, postalCode: model.PostalCode);
+            await _repository.Update(address: address);
+            return ResultViewModel.Success();
+        }
+        [HttpDelete]
+        public async Task<ResultViewModel> Delete(int id)
+        {
+            var address = await _repository.GetById(id: id);
+            if (address == null)
+            {
+                return ResultViewModel.Error("Address not found.");
+            }
             address.SetAsDeleted();
             await _repository.Update(address: address);
-            return NoContent();
+            return ResultViewModel.Success();
         }
     }
 }

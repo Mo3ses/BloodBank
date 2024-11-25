@@ -14,42 +14,55 @@ namespace BloodBank.API.Controllers
             _repository = repository;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ResultViewModel<List<DonorViewModel>>> GetAll()
         {
             var donors = await _repository.GetAll();
-            var models = donors.Select((DonorViewModel.FromEntity)).ToList();
-            return Ok(models);
+            var models = donors.Select(DonorViewModel.FromEntity).ToList();
+            return ResultViewModel<List<DonorViewModel>>.Success(models);
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ResultViewModel<DonorViewModel>> GetById(int id)
         {
             var donor = await _repository.GetById(id: id);
+            if (donor == null)
+            {
+                return ResultViewModel<DonorViewModel>.Error("Donor not found.");
+            }
             var model = DonorViewModel.FromEntity(entity: donor);
-            return Ok(model);
+            return ResultViewModel<DonorViewModel>.Success(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(DonorInputModel model)
+        public async Task<ResultViewModel<int>> Create(DonorInputModel model)
         {
             var donor = model.ToEntity();
-            await _repository.Create(donor: donor);
-            return Ok();
+            var result = await _repository.Create(donor: donor);
+            return ResultViewModel<int>.Success(result);
         }
         [HttpPut]
-        public async Task<IActionResult> Update(DonorViewModel model)
-        {
-            var donor = await _repository.GetById(id: model.DonorId);
-            donor.Update(email: model.Email, weight: model.Weight);
-            await _repository.Update(donor: donor);
-            return NoContent();
-        }
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ResultViewModel> Update(int id, DonorInputModel model)
         {
             var donor = await _repository.GetById(id: id);
+            if (donor == null)
+            {
+                return ResultViewModel.Error("Donor not found.");
+            }
+            donor.Update(fullName: model.FullName, email: model.Email, birthDate: model.BirthDate, gender: model.Gender, weight: model.Weight, bloodType: model.BloodType, rhFactor: model.RhFactor);
+            await _repository.Update(donor: donor);
+            return ResultViewModel.Success();
+
+        }
+        [HttpDelete]
+        public async Task<ResultViewModel> Delete(int id)
+        {
+            var donor = await _repository.GetById(id: id);
+            if (donor == null)
+            {
+                return ResultViewModel.Error("Donor not found.");
+            }
             donor.SetAsDeleted();
             await _repository.Update(donor: donor);
-            return NoContent();
+            return ResultViewModel.Success();
         }
     }
 }

@@ -14,22 +14,26 @@ namespace BloodBank.API.Controllers
             _repository = repository;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ResultViewModel<List<DonationViewModel>>> GetAll()
         {
             var donors = await _repository.GetAll();
-            var models = donors.Select((DonationViewModel.FromEntity)).ToList();
-            return Ok(models);
+            var models = donors.Select(DonationViewModel.FromEntity).ToList();
+            return ResultViewModel<List<DonationViewModel>>.Success(models);
         }
         [HttpGet("GetById")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ResultViewModel<DonationViewModel>> GetById(int id)
         {
             var donation = await _repository.GetById(id: id);
+            if (donation == null)
+            {
+                return ResultViewModel<DonationViewModel>.Error("Donation not found.");
+            }
             var model = DonationViewModel.FromEntity(entity: donation);
-            return Ok(model);
+            return ResultViewModel<DonationViewModel>.Success(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(DonationInputModel model)
+        public async Task<ResultViewModel<int>> Create(DonationInputModel model)
         {
             var donation = model.ToEntity();
             var result = await _repository.Create(donation: donation);
@@ -38,23 +42,31 @@ namespace BloodBank.API.Controllers
                     bloodType: donation.Donor.BloodType,
                     rhFactor: donation.Donor.RhFactor,
                     quantityML: donation.QuantityML));
-            return Ok();
+            return ResultViewModel<int>.Success(data: donation.Id);
         }
         [HttpPut]
-        public async Task<IActionResult> Update(DonationViewModel model)
-        {
-            var donation = await _repository.GetById(id: model.DonorId);
-            donation.Update(donorId: model.DonorId, donationDate: model.DonationDate, quantityML: model.QuantityML);
-            await _repository.Update(donation: donation);
-            return NoContent();
-        }
-        [HttpDelete]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<ResultViewModel> Update(int id, DonationViewModel model)
         {
             var donation = await _repository.GetById(id: id);
+            if (donation == null)
+            {
+                return ResultViewModel.Error("Donation not found.");
+            }
+            donation.Update(donorId: model.DonorId, donationDate: model.DonationDate, quantityML: model.QuantityML);
+            await _repository.Update(donation: donation);
+            return ResultViewModel.Success();
+        }
+        [HttpDelete]
+        public async Task<ResultViewModel> Delete(int id)
+        {
+            var donation = await _repository.GetById(id: id);
+            if (donation == null)
+            {
+                return ResultViewModel.Error("Donation not found.");
+            }
             donation.SetAsDeleted();
             await _repository.Update(donation: donation);
-            return NoContent();
+            return ResultViewModel.Success();
         }
     }
 }

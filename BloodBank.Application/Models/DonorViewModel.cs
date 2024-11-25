@@ -4,7 +4,7 @@ namespace BloodBank.Application.Models
 {
     public class DonorViewModel
     {
-        public DonorViewModel(int donorId, string fullName, string email, DateTime birthDate, string gender, double weight, string bloodType, string rhFactor, Address address, List<Donation> donations)
+        public DonorViewModel(int donorId, string fullName, string email, DateTime birthDate, string gender, double weight, string bloodType, string rhFactor, List<Address> address, List<Donation> donations)
         {
             DonorId = donorId;
             FullName = fullName;
@@ -14,7 +14,7 @@ namespace BloodBank.Application.Models
             Weight = weight;
             BloodType = bloodType;
             RhFactor = rhFactor;
-            Address = AddressViewModel.FromEntity(entity: address);
+            Addresses = address.Select(a => AddressViewModel.FromEntity(a)).ToList();
             Donations = donations.Select(d => DonationViewModel.FromEntity(d)).ToList();
         }
         public int DonorId { get; private set; }
@@ -25,7 +25,7 @@ namespace BloodBank.Application.Models
         public double Weight { get; private set; }
         public string BloodType { get; private set; }
         public string RhFactor { get; private set; }
-        public AddressViewModel Address { get; private set; }
+        public List<AddressViewModel> Addresses { get; private set; }
         public List<DonationViewModel> Donations { get; private set; }
         public static DonorViewModel FromEntity(Donor entity)
         => new(
@@ -37,7 +37,7 @@ namespace BloodBank.Application.Models
             weight: entity.Weight,
             bloodType: entity.BloodType,
             rhFactor: entity.RhFactor,
-            address: entity.Address,
+            address: entity.Addresses,
             donations: entity.Donations
             );
     }

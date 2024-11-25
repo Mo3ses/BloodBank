@@ -31,7 +31,6 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
                 .SingleOrDefaultAsync(a => a.Id == id);
             return result;
         }
-
         public async Task Update(Address address)
         {
             _context.Update(address);

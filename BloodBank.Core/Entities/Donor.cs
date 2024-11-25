@@ -11,7 +11,7 @@ namespace BloodBank.Core.Entities
             Weight = weight;
             BloodType = bloodType;
             RhFactor = rhFactor;
-            Donations = [];
+
         }
         public string FullName { get; private set; }
         public string Email { get; private set; }
@@ -20,8 +20,8 @@ namespace BloodBank.Core.Entities
         public double Weight { get; private set; }
         public string BloodType { get; private set; }
         public string RhFactor { get; private set; }
-        public List<Donation> Donations { get; private set; }
-        public Address? Address { get; private set; }
+        public List<Donation> Donations { get; private set; } = new();
+        public List<Address> Addresses { get; private set; } = new();
         public void Update(string email, double weight)
         {
             Email = email;

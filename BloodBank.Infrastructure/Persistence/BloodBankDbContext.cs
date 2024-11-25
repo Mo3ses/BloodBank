@@ -33,9 +33,9 @@ namespace BloodBank.Infrastructure.Persistence
             builder.Entity<Donor>(e =>
             {
                 e.HasKey(donor => donor.Id);
-                e.HasOne(d => d.Address)
-                    .WithOne()
-                    .HasForeignKey<Address>(address => address.DonorId)
+                e.HasMany(d => d.Addresses)
+                    .WithOne(address => address.Donor)
+                    .HasForeignKey(address => address.DonorId)
                     .OnDelete(DeleteBehavior.Restrict); ;
             });
         }

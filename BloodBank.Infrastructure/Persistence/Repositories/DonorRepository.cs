@@ -21,7 +21,7 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             var results = await _context.Donors
                 .Where(d => !d.IsDeleted)
-                .Include(d => d.Address)
+                .Include(d => d.Addresses.Where(a => !a.IsDeleted))
                 .ToListAsync();
             return results;
         }
@@ -30,8 +30,8 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             var result = await _context.Donors
                 .Where(d => !d.IsDeleted)
-                .Include(d => d.Address)
-                .Include(d => d.Donations)
+                .Include(d => d.Addresses.Where(a => !a.IsDeleted))
+                .Include(d => d.Donations.Where(dn => !dn.IsDeleted))
                 .SingleOrDefaultAsync(d => d.Id == id);
             return result;
         }

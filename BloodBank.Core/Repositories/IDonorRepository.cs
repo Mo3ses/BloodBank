@@ -6,7 +6,7 @@ namespace BloodBank.Core.Repositories
     {
         Task<List<Donor>> GetAll();
         Task<Donor> GetById(int id);
-        Task Create(Donor donor);
+        Task<int> Create(Donor donor);
         Task Update(Donor donor);
     }
 }

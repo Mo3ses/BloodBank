@@ -11,10 +11,11 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             _context = context;
         }
-        public async Task Create(Donor donor)
+        public async Task<int> Create(Donor donor)
         {
             await _context.AddAsync(donor);
             await _context.SaveChangesAsync();
+            return donor.Id;
         }
 
         public async Task<List<Donor>> GetAll()

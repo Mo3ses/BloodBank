@@ -1,4 +1,4 @@
-# 🩸 BloodBank - Web API para Gestão de Bancos de Sangue
+# 🩸 BloodBank - Web API
 
 Bem-vindo ao **BloodBank**, um projeto desenvolvido em **ASP.NET Core (.NET 8)** com foco em boas práticas, organização e escalabilidade. Esta API foi projetada para gerenciar bancos de sangue, possibilitando o cadastro de doadores, consultas e controle de estoques de forma eficiente e segura.
 

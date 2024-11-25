@@ -51,7 +51,7 @@ namespace BloodBank.API.Controllers
             {
                 return ResultViewModel.Error("Address not found.");
             }
-            address.Update(street: model.Street, city: model.City, state: model.State, postalCode: model.PostalCode);
+            address.Update(street: model.Street, city: model.City, state: model.State, postalCode: model.PostalCode, donorId: model.DonorId);
             await _repository.Update(address: address);
             return ResultViewModel.Success();
         }

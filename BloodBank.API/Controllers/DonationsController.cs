@@ -32,7 +32,12 @@ namespace BloodBank.API.Controllers
         public async Task<IActionResult> Create(DonationInputModel model)
         {
             var donation = model.ToEntity();
-            await _repository.Create(donation: donation);
+            var result = await _repository.Create(donation: donation);
+            donation = await _repository.GetById(id: result);
+            await _repository.AddStock(new(
+                    bloodType: donation.Donor.BloodType,
+                    rhFactor: donation.Donor.RhFactor,
+                    quantityML: donation.QuantityML));
             return Ok();
         }
         [HttpPut]

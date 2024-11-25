@@ -10,10 +10,11 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         {
             _context = context;
         }
-        public async Task Create(Donation donation)
+        public async Task<int> Create(Donation donation)
         {
             await _context.AddAsync(donation);
             await _context.SaveChangesAsync();
+            return donation.Id;
         }
 
         public async Task<List<Donation>> GetAll()
@@ -36,6 +37,12 @@ namespace BloodBank.Infrastructure.Persistence.Repositories
         public async Task Update(Donation donation)
         {
             _context.Update(donation);
+            await _context.SaveChangesAsync();
+        }
+        public async Task AddStock(BloodStock donation)
+        {
+            //var bloodStock = new BloodStock(bloodType: donation.Donor.BloodType, rhFactor: donation.Donor.RhFactor, quantityML: donation.QuantityML);
+            await _context.AddAsync(donation);
             await _context.SaveChangesAsync();
         }
     }

@@ -22,10 +22,17 @@ namespace BloodBank.Core.Entities
         public string RhFactor { get; private set; }
         public List<Donation> Donations { get; private set; } = new();
         public List<Address> Addresses { get; private set; } = new();
-        public void Update(string email, double weight)
+        public void Update(string fullName, string email, DateTime birthDate, string gender, double weight, string bloodType, string rhFactor)
         {
+            FullName = fullName;
             Email = email;
+            BirthDate = birthDate;
+            Gender = gender;
             Weight = weight;
+            BloodType = bloodType;
+            RhFactor = rhFactor;
+
+
         }
     }
 }

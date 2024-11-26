@@ -1,5 +1,11 @@
+using BloodBank.Application.Commands.CreateDonor;
+using BloodBank.Application.Commands.DeleteDonor;
+using BloodBank.Application.Commands.UpdateDonor;
 using BloodBank.Application.Models;
+using BloodBank.Application.Queries.GetAllDonors;
+using BloodBank.Application.Queries.GetDonorById;
 using BloodBank.Core.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BloodBank.API.Controllers
@@ -8,61 +14,58 @@ namespace BloodBank.API.Controllers
     [Route("api/[controller]")]
     public class DonorsController : ControllerBase
     {
-        private readonly IDonorRepository _repository;
-        public DonorsController(IDonorRepository repository)
+        private readonly IMediator _mediator;
+        public DonorsController(IMediator mediator)
         {
-            _repository = repository;
+            _mediator = mediator;
         }
         [HttpGet]
-        public async Task<ResultViewModel<List<DonorViewModel>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var donors = await _repository.GetAll();
-            var models = donors.Select(DonorViewModel.FromEntity).ToList();
-            return ResultViewModel<List<DonorViewModel>>.Success(models);
+            var results = await _mediator.Send(request: new GetAllDonorsQuery());
+            return Ok(results);
         }
         [HttpGet("GetById")]
-        public async Task<ResultViewModel<DonorViewModel>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var donor = await _repository.GetById(id: id);
-            if (donor == null)
+            var result = await _mediator.Send(request: new GetDonorByIdQuery(id: id));
+            if (result == null)
             {
-                return ResultViewModel<DonorViewModel>.Error("Donor not found.");
+                return NotFound(result.Message);
             }
-            var model = DonorViewModel.FromEntity(entity: donor);
-            return ResultViewModel<DonorViewModel>.Success(model);
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ResultViewModel<int>> Create(DonorInputModel model)
+        public async Task<IActionResult> Create(CreateDonorCommand command)
         {
-            var donor = model.ToEntity();
-            var result = await _repository.Create(donor: donor);
-            return ResultViewModel<int>.Success(result);
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Message);
+            }
+            return CreatedAtAction(nameof(GetById), new { id = result.IsSuccess }, command);
         }
         [HttpPut]
-        public async Task<ResultViewModel> Update(int id, DonorInputModel model)
+        public async Task<IActionResult> Update(UpdateDonorCommand command)
         {
-            var donor = await _repository.GetById(id: id);
-            if (donor == null)
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
             {
-                return ResultViewModel.Error("Donor not found.");
-            }
-            donor.Update(fullName: model.FullName, email: model.Email, birthDate: model.BirthDate, gender: model.Gender, weight: model.Weight, bloodType: model.BloodType, rhFactor: model.RhFactor);
-            await _repository.Update(donor: donor);
-            return ResultViewModel.Success();
+                return BadRequest(result.Message);
+            };
+            return NoContent();
 
         }
         [HttpDelete]
-        public async Task<ResultViewModel> Delete(int id)
+        public async Task<IActionResult> Delete(DeleteDonorCommand command)
         {
-            var donor = await _repository.GetById(id: id);
-            if (donor == null)
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
             {
-                return ResultViewModel.Error("Donor not found.");
-            }
-            donor.SetAsDeleted();
-            await _repository.Update(donor: donor);
-            return ResultViewModel.Success();
+                return BadRequest(result.Message);
+            };
+            return NoContent();
         }
     }
 }

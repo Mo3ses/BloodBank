@@ -44,7 +44,7 @@ namespace BloodBank.API.Controllers
             {
                 return BadRequest(result.Message);
             }
-            return CreatedAtAction(nameof(GetById), new { id = result.IsSuccess }, command);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, command);
         }
         [HttpPut]
         public async Task<IActionResult> Update(UpdateDonorCommand command)

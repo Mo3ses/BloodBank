@@ -15,6 +15,10 @@ namespace BloodBank.Application.Commands.CreateDonation
         {
             var donation = request.ToEntity();
             var result = await _repository.Create(donation: donation);
+            await _repository.AddStock(new(
+                    bloodType: donation.Donor.BloodType,
+                    rhFactor: donation.Donor.RhFactor,
+                    quantityML: donation.QuantityML));
             return ResultViewModel<int>.Success(result);
         }
     }

@@ -19,9 +19,9 @@ public class Address : BaseEntity
     public void Update(string street, string city, string state, string postalCode, int donorId)
     {
         Street = street;
-        Street = city;
-        City = state;
-        State = postalCode;
+        State = state;
+        City = city;
+        PostalCode = postalCode;
         DonorId = donorId;
     }
 }

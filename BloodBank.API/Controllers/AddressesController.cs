@@ -1,5 +1,11 @@
+using BloodBank.Application.Commands.CreateAddress;
+using BloodBank.Application.Commands.DeleteAddress;
+using BloodBank.Application.Commands.UpdateAddress;
 using BloodBank.Application.Models;
+using BloodBank.Application.Queries.GetAddressById;
+using BloodBank.Application.Queries.GetAllAddresses;
 using BloodBank.Core.Repositories;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BloodBank.API.Controllers
@@ -8,64 +14,57 @@ namespace BloodBank.API.Controllers
     [Route("api/[controller]")]
     public class AddressesController : ControllerBase
     {
-        private readonly IAddressRepository _repository;
-        public AddressesController(IAddressRepository repository)
+        private readonly IMediator _mediator;
+        public AddressesController(IMediator mediator)
         {
-            _repository = repository;
+            _mediator = mediator;
         }
         [HttpGet]
-        public async Task<ResultViewModel<List<AddressViewModel>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var addresses = await _repository.GetAll();
-            var models = addresses.Select(AddressViewModel.FromEntity).ToList();
-            return ResultViewModel<List<AddressViewModel>>.Success(models);
+            var results = await _mediator.Send(request: new GetAllAddressesQuery());
+            return Ok(results);
         }
         [HttpGet("GetById")]
-        public async Task<ResultViewModel<AddressViewModel>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            var address = await _repository.GetById(id: id);
-            if (address == null)
+            var result = await _mediator.Send(request: new GetAddressByIdQuery(id: id));
+            if (result == null)
             {
-                return ResultViewModel<AddressViewModel>.Error("Address not found.");
+                return NotFound(result.Message);
             }
-            var model = AddressViewModel.FromEntity(entity: address);
-            return ResultViewModel<AddressViewModel>.Success(model);
+            return Ok(result);
         }
 
         [HttpPost]
-        public async Task<ResultViewModel<int>> Create(AddressInputModel model)
+        public async Task<IActionResult> Create(CreateAddressCommand command)
         {
-            if (model.DonorId.Equals(0))
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
             {
-                return ResultViewModel<int>.Error("Donor Id Missing");
+                return BadRequest(result.Message);
             }
-            var address = model.ToEntity();
-            var result = await _repository.Create(address: address);
-            return ResultViewModel<int>.Success(data: result);
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, command);
         }
         [HttpPut]
-        public async Task<ResultViewModel> Update(int id, AddressInputModel model)
+        public async Task<IActionResult> Update(UpdateAddressCommand command)
         {
-            var address = await _repository.GetById(id: id);
-            if (address == null)
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
             {
-                return ResultViewModel.Error("Address not found.");
+                return BadRequest(result.Message);
             }
-            address.Update(street: model.Street, city: model.City, state: model.State, postalCode: model.PostalCode, donorId: model.DonorId);
-            await _repository.Update(address: address);
-            return ResultViewModel.Success();
+            return NoContent();
         }
         [HttpDelete]
-        public async Task<ResultViewModel> Delete(int id)
+        public async Task<IActionResult> Delete(DeleteAddressCommand command)
         {
-            var address = await _repository.GetById(id: id);
-            if (address == null)
+            var result = await _mediator.Send(request: command);
+            if (!result.IsSuccess)
             {
-                return ResultViewModel.Error("Address not found.");
+                return BadRequest(result.Message);
             }
-            address.SetAsDeleted();
-            await _repository.Update(address: address);
-            return ResultViewModel.Success();
+            return NoContent();
         }
     }
 }
